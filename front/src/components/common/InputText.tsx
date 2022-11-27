@@ -3,17 +3,19 @@ import { FC } from "react";
 import StyledProps from "../props/styledProps";
 
 interface InputText extends StyledProps {
-    name: string;
+    id?: string;
+    name?: string;
     label?: string;
     placeholder?: string;
     onInput?: (text: string) => void;
 }
 
-const InputText: FC<InputText> = ({ name, label, placeholder, onInput }) => {
+const InputText: FC<InputText> = ({ id, name, label, placeholder, onInput }) => {
     return (
         <div>
-            {label && <label htmlFor={name}>{label}</label>}
+            {label && <label htmlFor={id}>{label}</label>}
             <input className="flex-1 px-2 border-gray-100 border-2 rounded-r-sm transition-all focus:border-gray-300"
+                id={id}
                 name={name}
                 type="text" 
                 autoComplete="off" 
