@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 
 import { getCountries } from "../services/countriesService";
 import Country from "../models/country";
@@ -6,11 +6,9 @@ import Color from "../models/color";
 import Item from "../models/item";
 import { getColors } from "../services/colorsService";
 import StyledProps from "./props/styledProps";
-
-type ItemData = Item & {
-    countryId: number;
-    colorId: number;
-};
+import InputText from "./common/InputText";
+import Select from "./common/Select";
+import InputNumber from "./common/InputNumber";
 
 interface ItemFormProps extends StyledProps {
     item?: Item;
@@ -20,17 +18,23 @@ interface ItemFormProps extends StyledProps {
 const ItemForm: FC<ItemFormProps> = ({ item, onSent, className, style }) => {
     const [countries, setCountries] = useState<Country[]>([]);
     const [colors, setColors] = useState<Color[]>([]);
-
-    const nameInput = useRef<HTMLInputElement>(null);
-
     const [formDisabled, setFormDisabled] = useState(true);
 
-    const itemId = item?.id;
+    const [itemName, setItemName] = useState(item?.name);
+    const [itemQty, setItemQty] = useState(item?.quantity);
+    const [itemCountryId, setItemCountryId] = useState(item?.country.id);
+    const [itemColorId, setItemColorId] = useState(item?.color.id);
+    const [itemActive, setItemActive] = useState(item?.active || false);
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // TODO: insert data using api
-        console.log(nameInput.current?.value);
+        console.log(item?.id);
+        console.log(itemName);
+        console.log(itemQty);
+        console.log(itemCountryId);
+        console.log(itemColorId);
+        console.log(itemActive);
         onSent();
     };
 
@@ -38,7 +42,9 @@ const ItemForm: FC<ItemFormProps> = ({ item, onSent, className, style }) => {
         (async () => {
             const [fetchedCountries, fetchedColors] = await Promise.all([getCountries(), getColors()]);
             setCountries(fetchedCountries);
+            if(!itemCountryId) setItemCountryId(fetchedCountries?.[0].id);
             setColors(fetchedColors);
+            if(!itemColorId) setItemColorId(fetchedColors?.[0].id);
             setFormDisabled(false);
         })();
     }, []);
@@ -49,11 +55,9 @@ const ItemForm: FC<ItemFormProps> = ({ item, onSent, className, style }) => {
             <form onSubmit={onSubmit}>
                 <fieldset className="px-4 py-6 border-gray-100 border-x-2 border-t-2 rounded-t-sm">
                     <legend>{ item ? 'Edit' : 'New' } Item</legend>
-                    <div className="flex gap-2 mb-3">
-                        <div className="flex gap-1">
-                            <label>ID</label>
-                            <input className="w-10 px-2 border-gray-100 text-center border-2 rounded-sm focus:border-gray-300" disabled value={item?.id ?? '-'} />
-                        </div>
+                    <div className="flex items-center gap-2 mb-3">
+                        <InputText className="w-14" inputClassName="text-center" label="ID" disabled horizontal 
+                            value={item?.id ?? '-'} />
                         <div className="flex gap-1 ml-auto">
                             <label>Active</label>
                             <input className="appearance-none w-7 h-7 p-1 border-gray-100 border-2 rounded-sm
@@ -61,36 +65,33 @@ const ItemForm: FC<ItemFormProps> = ({ item, onSent, className, style }) => {
                                 before:block before:w-full before:h-full before:rounded-sm before:transition-all
                                 checked:before:bg-black"
                                 type="checkbox"
-                                defaultChecked={item?.active} />
+                                defaultChecked={item?.active}
+                                onChange={e => setItemActive(e.currentTarget.checked)} />
                         </div>
                     </div>
-                    <div className="flex flex-col mb-3">
-                        <label>Name</label>
-                        <input ref={nameInput} className="px-2 py-1 border-gray-100 border-2 rounded-sm transition-all focus:border-gray-300" type="text" value={item?.name} />
+                    <div>
+                        <InputText className="mb-3" label="Name" value={item?.name} onChange={val => setItemName(val as string)} minLength={3} required />
                     </div>
                     <div className="flex gap-3 mb-3">
-                        <div className="flex-1 flex flex-col">
-                            <label>Quantity</label>
-                            <input className="px-2 py-1 border-gray-100 border-2 rounded-sm transition-all focus:border-gray-300" type="number" min={0} value={item?.quantity} />
-                        </div>
-                        <div className="flex-1 flex flex-col">
-                            <label>Country</label>
-                            <select className="px-2 py-1 border-gray-100 border-2 rounded-sm transition-all focus:border-gray-300" value={item?.country.id}>
-                                {countries.length ? countries.map(country => (
-                                    <option key={country.id} value={country.id}>{country.name}</option>
-                                )) : (
-                                    <option value="-1">-</option>
-                                )}
-                            </select>
-                        </div>
+                        <InputNumber className="flex-1" label="Quantity" min={0} value={item?.quantity}
+                            onChange={val => setItemQty(val)} required />
+                        <Select className="flex-1" label="Country" value={item?.country.id}
+                            onChange={val => setItemCountryId(parseInt(val))}>
+                            {countries.length ? countries.map(country => (
+                                <option key={country.id} value={country.id}>{country.name}</option>
+                            )) : (
+                                <option value="-1">-</option>
+                            )}
+                        </Select>
                     </div>
                     <div className="flex flex-col">
                         <div className="mb-3">Color</div>
                         <div className="flex gap-5 ml-2">
-                            {colors.length ? colors.map(color => (
+                            {colors.length ? colors.map((color, index) => (
                                 <div key={color.id} className="flex gap-1">
                                     <span className="inline-block w-5 h-5 rounded-full" style={{ backgroundColor: color.hex }}></span>
-                                    <input className="w-4 accent-black" type="radio" name="color" value={color.id} defaultChecked={item?.color.id === color.id} />
+                                    <input className="w-4 accent-black" type="radio" name="color" value={color.id} defaultChecked={index === 0 || item?.color.id === color.id}
+                                        onChange={e => setItemColorId(parseInt(e.currentTarget.value))}/>
                                 </div>
                             )) : (
                                 <>
