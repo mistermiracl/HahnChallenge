@@ -9,6 +9,18 @@ export function getCountries(): Promise<Country[]> {
         {
             id: 2,
             name: 'Bolivia'
+        },
+        {
+            id: 3,
+            name: 'Colombia'
+        },
+        {
+            id: 4,
+            name: 'Brazil'
+        },
+        {
+            id: 5,
+            name: 'Ecuador'
         }
     ]);
 }
