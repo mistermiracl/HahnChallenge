@@ -5,19 +5,21 @@ class Item {
     id?: number;
     name: string;
     quantity: number;
-    countryId!: number;
-    colorId!: number;
+    countryId: number;
+    colorId: number;
     active: boolean;
-    country: Country;
-    color: Color;
+    country?: Country;
+    color?: Color;
 
-    constructor(name: string, quantity: number, country: Country, color: Color, active: boolean, id?: number) {
+    constructor(name: string, quantity: number, countryId: number, colorId: number, active: boolean, id?: number, country?: Country, color?: Color) {
         this.name = name;
         this.quantity = quantity;
-        this.country = country;
-        this.color = color;
+        this.countryId = countryId;
+        this.colorId = colorId;
         this.active = active;
         this.id = id;
+        this.color = color;
+        this.country = country;
     }
 }
 

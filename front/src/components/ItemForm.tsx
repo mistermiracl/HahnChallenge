@@ -9,6 +9,7 @@ import StyledProps from "./props/styledProps";
 import InputText from "./common/InputText";
 import Select from "./common/Select";
 import InputNumber from "./common/InputNumber";
+import { createItem, updateItem } from "../services/itemsService";
 
 interface ItemFormProps extends StyledProps {
     item?: Item;
@@ -20,15 +21,35 @@ const ItemForm: FC<ItemFormProps> = ({ item, onSent, className, style }) => {
     const [colors, setColors] = useState<Color[]>([]);
     const [formDisabled, setFormDisabled] = useState(true);
 
-    const [itemName, setItemName] = useState(item?.name);
-    const [itemQty, setItemQty] = useState(item?.quantity);
-    const [itemCountryId, setItemCountryId] = useState(item?.country.id);
-    const [itemColorId, setItemColorId] = useState(item?.color.id);
-    const [itemActive, setItemActive] = useState(item?.active || false);
+    const [itemName, setItemName] = useState(item?.name ?? '');
+    const [itemQty, setItemQty] = useState(item?.quantity ?? 0);
+    const [itemCountryId, setItemCountryId] = useState(item?.countryId);
+    const [itemColorId, setItemColorId] = useState(item?.colorId);
+    const [itemActive, setItemActive] = useState(item?.active ?? false);
 
-    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const clear = () => {
+        // TODO: clear inputs after submission
+        setItemName('');
+        setItemQty(0);
+        setItemCountryId(countries?.[0].id);
+        setItemColorId(colors?.[0].id);
+        setItemActive(false);
+    };
+
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // TODO: insert data using api
+        if(item) {
+            // if(item.color.id != itemColorId || item.active != itemActive || item.countryId || item.c
+            const updatedItem = new Item(itemName!, itemQty!, itemCountryId!, itemColorId!, itemActive!, item.id);
+            await updateItem(updatedItem);
+            clear();
+        } else {
+            // TODO: apply default values only when an item is present
+            const newItem = new Item(itemName!, itemQty!, itemCountryId!, itemColorId!, itemActive!);
+            await createItem(newItem);
+            clear();
+        }
         console.log(item?.id);
         console.log(itemName);
         console.log(itemQty);
@@ -39,12 +60,17 @@ const ItemForm: FC<ItemFormProps> = ({ item, onSent, className, style }) => {
     };
 
     useEffect(() => {
+        // TODO: reset state when item changes
+        if(item) clear();
+    }, [item]);
+
+    useEffect(() => {
         (async () => {
             const [fetchedCountries, fetchedColors] = await Promise.all([getCountries(), getColors()]);
             setCountries(fetchedCountries);
-            if(!itemCountryId) setItemCountryId(fetchedCountries?.[0].id);
             setColors(fetchedColors);
-            if(!itemColorId) setItemColorId(fetchedColors?.[0].id);
+            if(!item) setItemCountryId(fetchedCountries?.[0].id);
+            if(!item) setItemColorId(fetchedColors?.[0].id);
             setFormDisabled(false);
         })();
     }, []);
@@ -65,17 +91,17 @@ const ItemForm: FC<ItemFormProps> = ({ item, onSent, className, style }) => {
                                 before:block before:w-full before:h-full before:rounded-sm before:transition-all
                                 checked:before:bg-black"
                                 type="checkbox"
-                                defaultChecked={item?.active}
+                                checked={itemActive}
                                 onChange={e => setItemActive(e.currentTarget.checked)} />
                         </div>
                     </div>
                     <div>
-                        <InputText className="mb-3" label="Name" value={item?.name} onChange={val => setItemName(val as string)} minLength={3} required />
+                        <InputText className="mb-3" label="Name" value={itemName} onChange={val => setItemName(val as string)} minLength={3} required />
                     </div>
                     <div className="flex gap-3 mb-3">
-                        <InputNumber className="flex-1" label="Quantity" min={0} value={item?.quantity}
+                        <InputNumber className="flex-1" label="Quantity" min={0} value={itemQty}
                             onChange={val => setItemQty(val)} required />
-                        <Select className="flex-1" label="Country" value={item?.country.id}
+                        <Select className="flex-1" label="Country" value={itemCountryId}
                             onChange={val => setItemCountryId(parseInt(val))}>
                             {countries.length ? countries.map(country => (
                                 <option key={country.id} value={country.id}>{country.name}</option>
@@ -87,10 +113,11 @@ const ItemForm: FC<ItemFormProps> = ({ item, onSent, className, style }) => {
                     <div className="flex flex-col">
                         <div className="mb-3">Color</div>
                         <div className="flex gap-5 ml-2">
-                            {colors.length ? colors.map((color, index) => (
+                            {colors.length ? colors.map((color) => (
                                 <div key={color.id} className="flex gap-1">
                                     <span className="inline-block w-5 h-5 rounded-full" style={{ backgroundColor: color.hex }}></span>
-                                    <input className="w-4 accent-black" type="radio" name="color" value={color.id} defaultChecked={index === 0 || item?.color.id === color.id}
+                                    <input className="w-4 accent-black" type="radio" name="color" value={color.id}
+                                        checked={color.id === itemColorId}
                                         onChange={e => setItemColorId(parseInt(e.currentTarget.value))}/>
                                 </div>
                             )) : (

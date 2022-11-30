@@ -18,7 +18,15 @@ const ItemsGrid: FC<ItemsGridProps> = ({ filter, className, style }) => {
     
     useEffect(() => {
         getItems().then(fetchedItems => setItems(fetchedItems));
-    });
+    }, []);
+
+    const deleteItem = () => {
+
+    };
+
+    const editItem = () => {
+
+    };
 
     // TODO: highlight the row that is being edited
     // TODO: use rounded check and x for active status
@@ -39,9 +47,9 @@ const ItemsGrid: FC<ItemsGridProps> = ({ filter, className, style }) => {
                         <tr key={item.id} className="odd:bg-gray-100">
                             <td className="py-2 text-center">{item.name}</td>
                             <td className="text-center">{item.quantity}</td>
-                            <td className="text-center">{item.country.name}</td>
+                            <td className="text-center">{item.country?.name}</td>
                             <td className="text-center">
-                                <span className="align-middle inline-block w-5 h-5 rounded-full" style={{ backgroundColor: item.color.hex }}></span>
+                                <span className="align-middle inline-block w-5 h-5 rounded-full" style={{ backgroundColor: item.color?.hex }}></span>
                             </td>
                             <td className="text-center">
                                 {item.active ? (
