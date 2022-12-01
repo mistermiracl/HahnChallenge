@@ -11,21 +11,18 @@ interface ItemsGridProps extends StyledProps {
         prop: string
         crit: string
     };
+    refresh?: boolean;
+    onEditItem?: (item: Item) => void
 }
 
-const ItemsGrid: FC<ItemsGridProps> = ({ filter, className, style }) => {
+const ItemsGrid: FC<ItemsGridProps> = ({ filter, refresh, onEditItem, className, style }) => {
     const [items, setItems] = useState<Item[]>([]);
     
     useEffect(() => {
         getItems().then(fetchedItems => setItems(fetchedItems));
-    }, []);
+    }, [refresh]);
 
-    const deleteItem = () => {
-
-    };
-
-    const editItem = () => {
-
+    const deleteItem = (item: Item) => {
     };
 
     // TODO: highlight the row that is being edited
@@ -53,14 +50,16 @@ const ItemsGrid: FC<ItemsGridProps> = ({ filter, className, style }) => {
                             </td>
                             <td className="text-center">
                                 {item.active ? (
-                                    <CheckCircleIcon className="inline-block w-6"></CheckCircleIcon>
+                                    <CheckCircleIcon className="inline-block w-6" />
                                 ) : (
-                                    <XCircleIcon className="inline-block w-6"></XCircleIcon>
+                                    <XCircleIcon className="inline-block w-6" />
                                 )}
                             </td>
                             <td className="text-center">
-                                <PencilSquareIcon className="inline-block mr-1 w-6 cursor-pointer transition-all active:text-gray-500" title="Edit"></PencilSquareIcon>
-                                <TrashIcon className="inline-block mr-1 w-6 cursor-pointer transition-all active:text-gray-500" title="Delete"></TrashIcon>
+                                <PencilSquareIcon className="inline-block mr-1 w-6 cursor-pointer transition-all active:text-gray-500" title="Edit"
+                                    onClick={onEditItem ? () => onEditItem(item) : undefined}/>
+                                <TrashIcon className="inline-block mr-1 w-6 cursor-pointer transition-all active:text-gray-500" title="Delete"
+                                    onClick={() => deleteItem(item)} />
                             </td>
                         </tr>
                     )) :

@@ -14,6 +14,7 @@ export function getItems(): Promise<Item[]> {
 }
 
 export function createItem(item: Item) {
+    item.id = dummyItems[dummyItems.length - 1].id! + 1;
     dummyItems.push(item);
     return Promise.resolve({ status: 'ok' });
 }
