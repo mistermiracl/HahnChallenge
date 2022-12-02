@@ -10,7 +10,7 @@ const dummyItems: Item[] = [
 ];
 
 export function getItems(): Promise<Item[]> {
-    return Promise.resolve(dummyItems);
+    return Promise.resolve([...dummyItems]);
 }
 
 export function createItem(item: Item) {
@@ -20,5 +20,7 @@ export function createItem(item: Item) {
 }
 
 export function updateItem(item: Partial<Item>) {
+    const itemIndex = dummyItems.findIndex(dummy => dummy.id === item.id);
+    dummyItems[itemIndex] = { ...dummyItems[itemIndex], ...item };
     return Promise.resolve({ status: 'ok' });
 }
