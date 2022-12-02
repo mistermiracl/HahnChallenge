@@ -6,7 +6,7 @@ import ItemsGrid from './components/ItemsGrid';
 import Item from './models/item';
 
 function App() {
-    const [currentItem, setCurrentItem] = useState<Item>();
+    const [selectedItem, setSelectedItem] = useState<Item>();
     const [filterCrit, setFilterCrit] = useState('');
 
     const [refreshGrid, setRefreshGrid] = useState<boolean>()
@@ -25,9 +25,9 @@ function App() {
     return (
         <div className="m-auto max-w-3xl p-2">
             <h1 className="py-8 text-4xl font-bold italic text-center">Hahn Challenge</h1>
-            <ItemForm className="mb-10" item={currentItem} onSent={onFormSent} />
+            <ItemForm className="mb-10" item={selectedItem} setItem={setSelectedItem} onSent={onFormSent} />
             <Search placeholder="Search by name" onSearch={onSearch} />
-            <ItemsGrid className="mb-12" filter={{ prop: 'name', crit: filterCrit }} onEditItem={item => setCurrentItem(item)} />
+            <ItemsGrid className="mb-12" filter={{ prop: 'name', crit: filterCrit }} refresh={refreshGrid} onEditItem={item => setSelectedItem(item)} />
         </div>
     );
 };
