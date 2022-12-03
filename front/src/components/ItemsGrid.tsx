@@ -3,8 +3,9 @@ import { XCircleIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/20/so
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
 import Item from "../models/item";
-import { getItems } from "../services/itemsService";
+import { deleteItem, getItems } from "../services/itemsService";
 import StyledProps from "./props/styledProps";
+import ChooseModal from "./common/ChooseModal";
 
 interface ItemsGridProps extends StyledProps {
     filter?: {
@@ -12,21 +13,47 @@ interface ItemsGridProps extends StyledProps {
         crit: string
     };
     refresh?: boolean;
-    onEditItem?: (item: Item) => void
+    onEditItem?: (item: Item) => void;
 }
 
 const ItemsGrid: FC<ItemsGridProps> = ({ filter, refresh, onEditItem, className, style }) => {
     const [items, setItems] = useState<Item[]>([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedItemId, setSelectedItemId] = useState<number>();
     
     useEffect(() => {
-        getItems().then(fetchedItems => setItems(fetchedItems));
+        populateGrid();
     }, [refresh]);
 
-    const deleteItem = (item: Item) => {
+    const populateGrid = () => {
+        return getItems().then(fetchedItems => setItems(fetchedItems));
+    };
+
+    const handleEditItem = (item: Item) => {
+        setSelectedItemId(item.id);
+        if(onEditItem) onEditItem(item);
+    };
+
+    const promptDeleteItem = (item: Item) => {
+        setSelectedItemId(item.id);
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteItem = async () => {
+        if(selectedItemId) {
+            await deleteItem(selectedItemId)
+            populateGrid();
+            setSelectedItemId(undefined);
+        }
+        setShowDeleteModal(false);
+    };
+
+    const handleCancelDeleteItem = () => {
+        setSelectedItemId(undefined);
+        setShowDeleteModal(false);
     };
 
     // TODO: highlight the row that is being edited
-    // TODO: use rounded check and x for active status
     return (
         <div className={className} style={style}>
             <table className="w-full border-gray-50 border-x-2">
@@ -41,7 +68,7 @@ const ItemsGrid: FC<ItemsGridProps> = ({ filter, refresh, onEditItem, className,
                 </thead>
                 <tbody>
                     {items.length ? items.map(item => (
-                        <tr key={item.id} className="odd:bg-gray-100">
+                        <tr key={item.id} className={`odd:bg-gray-100${selectedItemId === item.id ? ' border-x-2 border-x-black' : ''}`}>
                             <td className="py-2 text-center">{item.name}</td>
                             <td className="text-center">{item.quantity}</td>
                             <td className="text-center">{item.country?.name}</td>
@@ -57,18 +84,19 @@ const ItemsGrid: FC<ItemsGridProps> = ({ filter, refresh, onEditItem, className,
                             </td>
                             <td className="text-center">
                                 <PencilSquareIcon className="inline-block mr-1 w-6 cursor-pointer transition-all active:text-gray-500" title="Edit"
-                                    onClick={onEditItem ? () => onEditItem(item) : undefined}/>
+                                    onClick={() => handleEditItem(item)} />
                                 <TrashIcon className="inline-block mr-1 w-6 cursor-pointer transition-all active:text-gray-500" title="Delete"
-                                    onClick={() => deleteItem(item)} />
+                                    onClick={() => promptDeleteItem(item)} />
                             </td>
                         </tr>
                     )) :
                         <tr>
-                            <td colSpan={4} className="h-24 text-center bg-gray-100">No data</td>
+                            <td colSpan={5} className="h-24 text-center bg-gray-100">No data</td>
                         </tr>
                     }
                 </tbody>
             </table>
+            <ChooseModal show={showDeleteModal} onChoose={handleDeleteItem} onCancel={handleCancelDeleteItem} />
         </div>
     )
 };
