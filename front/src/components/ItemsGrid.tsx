@@ -12,14 +12,14 @@ interface ItemsGridProps extends StyledProps {
         prop: string
         crit: string
     };
+    editItemState: [Item | undefined, React.Dispatch<React.SetStateAction<Item | undefined>>];
     refresh?: boolean;
-    onEditItem?: (item: Item) => void;
 }
 
-const ItemsGrid: FC<ItemsGridProps> = ({ filter, refresh, onEditItem, className, style }) => {
+const ItemsGrid: FC<ItemsGridProps> = ({ filter, editItemState: [itemToEdit, setitemToEdit], refresh, className, style }) => {
     const [items, setItems] = useState<Item[]>([]);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [selectedItemId, setSelectedItemId] = useState<number>();
+    const [itemToDelete, setItemToDelete] = useState<Item>();
     
     useEffect(() => {
         populateGrid();
@@ -30,30 +30,28 @@ const ItemsGrid: FC<ItemsGridProps> = ({ filter, refresh, onEditItem, className,
     };
 
     const handleEditItem = (item: Item) => {
-        setSelectedItemId(item.id);
-        if(onEditItem) onEditItem(item);
+        setitemToEdit(item);
     };
 
     const promptDeleteItem = (item: Item) => {
-        setSelectedItemId(item.id);
+        setItemToDelete(item);
         setShowDeleteModal(true);
     };
 
     const handleDeleteItem = async () => {
-        if(selectedItemId) {
-            await deleteItem(selectedItemId)
+        if(itemToDelete) {
+            await deleteItem(itemToDelete.id!)
             populateGrid();
-            setSelectedItemId(undefined);
+            setItemToDelete(undefined);
         }
         setShowDeleteModal(false);
     };
 
     const handleCancelDeleteItem = () => {
-        setSelectedItemId(undefined);
+        setItemToDelete(undefined);
         setShowDeleteModal(false);
     };
 
-    // TODO: highlight the row that is being edited
     return (
         <div className={className} style={style}>
             <table className="w-full border-gray-50 border-x-2">
@@ -68,7 +66,7 @@ const ItemsGrid: FC<ItemsGridProps> = ({ filter, refresh, onEditItem, className,
                 </thead>
                 <tbody>
                     {items.length ? items.map(item => (
-                        <tr key={item.id} className={`odd:bg-gray-100${selectedItemId === item.id ? ' border-x-2 border-x-black' : ''}`}>
+                        <tr key={item.id} className={`odd:bg-gray-100${itemToEdit?.id === item.id || itemToDelete?.id === item.id ? ' border-x-2 border-x-black' : ''}`}>
                             <td className="py-2 text-center">{item.name}</td>
                             <td className="text-center">{item.quantity}</td>
                             <td className="text-center">{item.country?.name}</td>

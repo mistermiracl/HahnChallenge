@@ -26,7 +26,7 @@ function App() {
             <h1 className="py-8 text-4xl font-bold italic text-center">Hahn Challenge</h1>
             <ItemForm className="mb-10" itemState={[selectedItem, setSelectedItem]} onSent={onFormSent} />
             <Search placeholder="Search by name" onSearch={onSearch} />
-            <ItemsGrid className="mb-12" filter={{ prop: 'name', crit: filterCrit }} refresh={refreshGrid} onEditItem={item => setSelectedItem(item)} />
+            <ItemsGrid className="mb-12" filter={{ prop: 'name', crit: filterCrit }} editItemState={[selectedItem, setSelectedItem]} refresh={refreshGrid} />
         </div>
     );
 };
