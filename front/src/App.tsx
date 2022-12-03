@@ -18,14 +18,13 @@ function App() {
 
     const onFormSent = () => {
         // TODO: refetch and repopulate grid
-        // setItems(items => );
         setRefreshGrid(!refreshGrid);
     };
 
     return (
         <div className="m-auto max-w-3xl p-2">
             <h1 className="py-8 text-4xl font-bold italic text-center">Hahn Challenge</h1>
-            <ItemForm className="mb-10" item={selectedItem} setItem={setSelectedItem} onSent={onFormSent} />
+            <ItemForm className="mb-10" itemState={[selectedItem, setSelectedItem]} onSent={onFormSent} />
             <Search placeholder="Search by name" onSearch={onSearch} />
             <ItemsGrid className="mb-12" filter={{ prop: 'name', crit: filterCrit }} refresh={refreshGrid} onEditItem={item => setSelectedItem(item)} />
         </div>

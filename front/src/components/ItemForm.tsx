@@ -12,12 +12,11 @@ import InputNumber from "./common/InputNumber";
 import { createItem, updateItem } from "../services/itemsService";
 
 interface ItemFormProps extends StyledProps {
-    item?: Item;
-    setItem?: (item: Item | undefined) => void;
+    itemState: [Item | undefined, React.Dispatch<React.SetStateAction<Item | undefined>>];
     onSent: () => void;
 }
 
-const ItemForm: FC<ItemFormProps> = ({ item, setItem, onSent, className, style }) => {
+const ItemForm: FC<ItemFormProps> = ({ itemState: [item, setItem], onSent, className, style }) => {
     const defaultFormItem: Partial<Item> = {
         name: '',
         quantity: 0,
@@ -30,8 +29,6 @@ const ItemForm: FC<ItemFormProps> = ({ item, setItem, onSent, className, style }
     const [colors, setColors] = useState<Color[]>([]);
     const [formItem, setFormItem] = useState<Partial<Item>>(defaultFormItem);
     const [formDisabled, setFormDisabled] = useState(true);
-
-    // TODO: the formItem should only hold the default values if there is no item, otherwise it should all be undefined and render directly from the item
 
     useEffect(() => {
         (async () => {
@@ -89,13 +86,12 @@ const ItemForm: FC<ItemFormProps> = ({ item, setItem, onSent, className, style }
         } else {
             await createItem(formItem as Item);
         }
-        reset();
         console.log(formItem);
+        reset();
         onSent();
     };
 
     const onCancel = () => {
-        console.log(item);
         reset();
     };
 
@@ -166,7 +162,7 @@ const ItemForm: FC<ItemFormProps> = ({ item, setItem, onSent, className, style }
                     <button className="flex-1 py-3 text-white font-semibold rounded-bl-sm bg-black transition-all 
                         active:bg-zinc-800
                         disabled:bg-zinc-600 disabled:active:bg-zinc-600"
-                        disabled={formDisabled}>SEND</button>
+                        disabled={formDisabled}>{item ? 'UPDATE' : 'CREATE'}</button>
                     <button type="button" className="flex-1 py-3 border-gray-100 border-2 rounded-br-sm transition-all
                         active:bg-gray-100
                         disabled:text-gray-400 disabled:active:bg-white"
