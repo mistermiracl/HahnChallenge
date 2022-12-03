@@ -24,3 +24,9 @@ export function updateItem(item: Partial<Item>) {
     dummyItems[itemIndex] = { ...dummyItems[itemIndex], ...item };
     return Promise.resolve({ status: 'ok' });
 }
+
+export function deleteItem(itemId: number) {
+    const itemIndex = dummyItems.findIndex(dummy => dummy.id === itemId);
+    dummyItems.splice(itemIndex, 1);
+    return Promise.resolve({ status: 'ok' });
+}
