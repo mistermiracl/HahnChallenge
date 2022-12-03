@@ -17,7 +17,6 @@ function App() {
     };
 
     const onFormSent = () => {
-        // TODO: refetch and repopulate grid
         setRefreshGrid(!refreshGrid);
     };
 

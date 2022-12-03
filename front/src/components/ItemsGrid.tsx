@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { XCircleIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/20/solid';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
@@ -16,8 +16,13 @@ interface ItemsGridProps extends StyledProps {
     refresh?: boolean;
 }
 
-const ItemsGrid: FC<ItemsGridProps> = ({ filter, editItemState: [itemToEdit, setitemToEdit], refresh, className, style }) => {
+const ItemsGrid: FC<ItemsGridProps> = ({ filter = { prop: 'name', crit: '' }, editItemState: [itemToEdit, setitemToEdit], refresh, className, style }) => {
     const [items, setItems] = useState<Item[]>([]);
+    // const filteredItems = useMemo(() =>
+    //     items.filter(item => ((item as any)[filter.prop]).toString().toLocaleLowerCase().includes(filter.crit.toLocaleLowerCase())),
+    //     [filter.prop, filter.crit]
+    // );
+    const filteredItems = items.filter(item => ((item as any)[filter.prop]).toString().toLocaleLowerCase().includes(filter.crit.toLocaleLowerCase()));
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<Item>();
     
@@ -65,7 +70,7 @@ const ItemsGrid: FC<ItemsGridProps> = ({ filter, editItemState: [itemToEdit, set
                     </tr>
                 </thead>
                 <tbody>
-                    {items.length ? items.map(item => (
+                    {filteredItems.length ? filteredItems.map(item => (
                         <tr key={item.id} className={`odd:bg-gray-100${itemToEdit?.id === item.id || itemToDelete?.id === item.id ? ' border-x-2 border-x-black' : ''}`}>
                             <td className="py-2 text-center">{item.name}</td>
                             <td className="text-center">{item.quantity}</td>
@@ -89,7 +94,7 @@ const ItemsGrid: FC<ItemsGridProps> = ({ filter, editItemState: [itemToEdit, set
                         </tr>
                     )) :
                         <tr>
-                            <td colSpan={5} className="h-24 text-center bg-gray-100">No data</td>
+                            <td colSpan={5} className="py-2 text-center bg-gray-100">No results</td>
                         </tr>
                     }
                 </tbody>
