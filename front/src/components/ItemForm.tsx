@@ -16,7 +16,7 @@ interface ItemFormProps extends StyledProps {
     onSent: () => void;
 }
 
-const ItemForm: FC<ItemFormProps> = ({ itemState: [item, setItem], onSent, className, style }) => {
+const ItemForm: FC<ItemFormProps> = ({ itemState: [selectedItem, setSelectedItem], onSent, className, style }) => {
     const defaultFormItem: Partial<Item> = {
         name: '',
         quantity: 0,
@@ -35,7 +35,7 @@ const ItemForm: FC<ItemFormProps> = ({ itemState: [item, setItem], onSent, class
             const [fetchedCountries, fetchedColors] = await Promise.all([getCountries(), getColors()]);
             setCountries(fetchedCountries);
             setColors(fetchedColors);
-            if(!item) {
+            if(!selectedItem) {
                 setDefaultValues(fetchedCountries, fetchedColors);
             }
             setFormDisabled(false);
@@ -43,13 +43,13 @@ const ItemForm: FC<ItemFormProps> = ({ itemState: [item, setItem], onSent, class
     }, []);
 
     useEffect(() => {
-        if(item) {
+        if(selectedItem) {
             clear(true);
             setFormItemPartial({
-                id: item.id
+                id: selectedItem.id
             });
         }
-    }, [item]);
+    }, [selectedItem]);
 
     const setFormItemPartial = (itemFields: Partial<Item>) => {
         setFormItem(prevItem => (
@@ -74,14 +74,14 @@ const ItemForm: FC<ItemFormProps> = ({ itemState: [item, setItem], onSent, class
     };
 
     const reset = () => {
-        if(setItem) setItem(undefined);
+        if(setSelectedItem) setSelectedItem(undefined);
         clear();
     };
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // TODO: insert data using api
-        if(item) {
+        if(selectedItem) {
             await updateItem(formItem);
         } else {
             await createItem(formItem as Item);
@@ -99,10 +99,10 @@ const ItemForm: FC<ItemFormProps> = ({ itemState: [item, setItem], onSent, class
         <div className={className} style={style}>
             <form onSubmit={onSubmit}>
                 <fieldset className="px-4 py-6 border-gray-100 border-x-2 border-t-2 rounded-t-sm">
-                    <legend className="text-xl font-semibold">{ item ? 'Edit Item' : 'New Item' }</legend>
+                    <legend className="text-xl font-semibold">{ selectedItem ? 'Edit Item' : 'New Item' }</legend>
                     <div className="flex items-center gap-2 mb-3">
                         <InputText className="w-14" inputClassName="text-center" label="ID" disabled horizontal 
-                            value={item?.id ?? '-'} />
+                            value={selectedItem?.id ?? '-'} />
                         <div className="flex gap-1 ml-auto">
                             <label>Active</label>
                             <input className="appearance-none w-7 h-7 p-1 border-gray-100 border-2 rounded-sm
@@ -110,21 +110,21 @@ const ItemForm: FC<ItemFormProps> = ({ itemState: [item, setItem], onSent, class
                                 before:block before:w-full before:h-full before:rounded-sm before:transition-all
                                 checked:before:bg-black"
                                 type="checkbox"
-                                checked={formItem.active ?? item?.active}
+                                checked={formItem.active ?? selectedItem?.active}
                                 onChange={e => setFormItemPartial({ active: e.currentTarget.checked })} />
                         </div>
                     </div>
                     <div>
                         <InputText className="mb-3" label="Name"
-                            value={formItem.name ?? item?.name}
+                            value={formItem.name ?? selectedItem?.name}
                             onChange={val => setFormItemPartial({ name: val as string })} minLength={3} required />
                     </div>
                     <div className="flex gap-3 mb-3">
                         <InputNumber className="flex-1" label="Quantity" min={0}
-                            value={formItem.quantity ?? item?.quantity}
+                            value={formItem.quantity ?? selectedItem?.quantity}
                             onChange={val => setFormItemPartial({ quantity: val })} required />
                         <Select className="flex-1" label="Country"
-                            value={formItem.countryId ?? item?.countryId}
+                            value={formItem.countryId ?? selectedItem?.countryId}
                             onChange={val => setFormItemPartial({ countryId: parseInt(val) })}>
                             {countries.length ? countries.map(country => (
                                 <option key={country.id} value={country.id}>{country.name}</option>
@@ -140,7 +140,7 @@ const ItemForm: FC<ItemFormProps> = ({ itemState: [item, setItem], onSent, class
                                 <div key={color.id} className="flex gap-1">
                                     <span className="inline-block w-5 h-5 rounded-full" style={{ backgroundColor: color.hex }}></span>
                                     <input className="w-4 accent-black" type="radio" name="color" value={color.id}
-                                        checked={color.id === (formItem.colorId ?? item?.colorId)}
+                                        checked={color.id === (formItem.colorId ?? selectedItem?.colorId)}
                                         onChange={e => setFormItemPartial({ colorId: parseInt(e.currentTarget.value) })}/>
                                 </div>
                             )) : (
@@ -162,7 +162,7 @@ const ItemForm: FC<ItemFormProps> = ({ itemState: [item, setItem], onSent, class
                     <button className="flex-1 py-3 text-white font-semibold rounded-bl-sm bg-black transition-all 
                         active:bg-zinc-800
                         disabled:bg-zinc-600 disabled:active:bg-zinc-600"
-                        disabled={formDisabled}>{item ? 'UPDATE' : 'CREATE'}</button>
+                        disabled={formDisabled}>{selectedItem ? 'UPDATE' : 'CREATE'}</button>
                     <button type="button" className="flex-1 py-3 border-gray-100 border-2 rounded-br-sm transition-all
                         active:bg-gray-100
                         disabled:text-gray-400 disabled:active:bg-white"
