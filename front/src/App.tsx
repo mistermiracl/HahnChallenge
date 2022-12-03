@@ -12,7 +12,6 @@ function App() {
     const [refreshGrid, setRefreshGrid] = useState<boolean>()
     
     const onSearch = (query: string) => {
-        console.log(query);
         setFilterCrit(query);
     };
 
