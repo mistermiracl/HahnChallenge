@@ -1,3 +1,8 @@
-server:
-  servlet:
-    contextPath: /
+spring:
+  profiles:
+    active: dev
+  datasource:
+    # url: jdbc:h2:file:/hahn.db
+    url: jdbc:h2:mem:hahn-challenge
+  jpa:
+    defer-datasource-initialization: true
