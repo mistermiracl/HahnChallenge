@@ -1,26 +1,7 @@
 import Country from "../models/country";
 
+const countriesUrl = import.meta.env.VITE_API_URL + '/countries';
+
 export function getCountries(): Promise<Country[]> {
-    return Promise.resolve([
-        {
-            id: 1,
-            name: 'Peru'
-        },
-        {
-            id: 2,
-            name: 'Bolivia'
-        },
-        {
-            id: 3,
-            name: 'Colombia'
-        },
-        {
-            id: 4,
-            name: 'Brazil'
-        },
-        {
-            id: 5,
-            name: 'Ecuador'
-        }
-    ]);
+    return fetch(countriesUrl).then(res => res.json());
 }
