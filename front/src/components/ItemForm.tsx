@@ -45,9 +45,6 @@ const ItemForm: FC<ItemFormProps> = ({ itemState: [selectedItem, setSelectedItem
     useEffect(() => {
         if(selectedItem) {
             clear(true);
-            setFormItemPartial({
-                id: selectedItem.id
-            });
         }
     }, [selectedItem]);
 
@@ -82,7 +79,7 @@ const ItemForm: FC<ItemFormProps> = ({ itemState: [selectedItem, setSelectedItem
         e.preventDefault();
         // TODO: insert data using api
         if(selectedItem) {
-            await updateItem(formItem);
+            await updateItem(selectedItem.id!, formItem);
         } else {
             await createItem(formItem as Item);
         }
