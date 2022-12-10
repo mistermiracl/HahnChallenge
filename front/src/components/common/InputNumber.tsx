@@ -34,6 +34,11 @@ const InputNumber: FC<InputNumberProps> = ({ id, name, label, placeholder, value
                     ref={inputRef}
                     onChange={onChange ? e => onChange(getNumberValue(e.currentTarget.value)) : undefined}
                     onInput={onInput ? e => onInput(getNumberValue(e.currentTarget.value)) : undefined}
+                    onFocus={e => {
+                        if(e.currentTarget.value.length === 1) {
+                            e.currentTarget.select();
+                        }
+                    }}
                 />
             </div>
         </div>
